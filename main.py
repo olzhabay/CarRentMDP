@@ -10,50 +10,6 @@ from matplotlib import cm
 from plotly.graph_objs import *
 from mpl_toolkits.mplot3d import Axes3D
 
-# from https://plot.ly/matplotlib/trisurf/
-def plotly_trisurf(x, y, z, simplices, colormap=cm.RdBu, plot_edges=None):
-    # x, y, z are lists of coordinates of the triangle vertices
-    # simplices are the simplices that define the triangularization;
-    # simplices  is a numpy array of shape (no_triangles, 3)
-    # insert here the  type check for input data
-
-    points3D = np.vstack((x, y, z)).T
-    tri_vertices = map(lambda index: points3D[index], simplices)  # vertices of the surface triangles
-    zmean = [np.mean(tri[:, 2]) for tri in tri_vertices]  # mean values of z-coordinates of
-    # triangle vertices
-    min_zmean = np.min(zmean)
-    max_zmean = np.max(zmean)
-    facecolor = [map_z2color(zz, colormap, min_zmean, max_zmean) for zz in zmean]
-    I, J, K = tri_indices(simplices)
-
-    triangles = Mesh3d(x=x,
-                       y=y,
-                       z=z,
-                       facecolor=facecolor,
-                       i=I,
-                       j=J,
-                       k=K,
-                       name=''
-                       )
-
-    if plot_edges is None:  # the triangle sides are not plotted
-        return Data([triangles])
-    else:
-        # define the lists Xe, Ye, Ze, of x, y, resp z coordinates of edge end points for each triangle
-        # None separates data corresponding to two consecutive triangles
-        lists_coord = [[[T[k % 3][c] for k in range(4)] + [None] for T in tri_vertices] for c in range(3)]
-        Xe, Ye, Ze = [reduce(lambda x, y: x + y, lists_coord[k]) for k in range(3)]
-
-        # define the lines to be plotted
-        lines = Scatter3d(x=Xe,
-                          y=Ye,
-                          z=Ze,
-                          mode='lines',
-                          line=Line(color='rgb(50,50,50)', width=1.5)
-                          )
-        return Data([triangles, lines])
-
-
 def poisson_prob(lmbda, x):
     return math.exp(-lmbda) * pow(lmbda, x) / math.factorial(x)
 
